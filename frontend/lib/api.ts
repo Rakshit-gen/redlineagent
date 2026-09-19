@@ -78,3 +78,4 @@ export const dismissFlag = (flagId: number, dismissed: boolean) =>
   postJson<Flag>(`/flags/${flagId}/dismiss/`, { dismissed });
 
 export const runsExportUrl = () => `${API_BASE}/runs/export/`;
+export const contractReportUrl = (contractId: number) => `${API_BASE}/contracts/${contractId}/report/`;

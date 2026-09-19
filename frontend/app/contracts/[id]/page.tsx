@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
+  contractReportUrl,
   dismissFlag,
   fetchContract,
   fetchRuns,
@@ -66,6 +67,9 @@ export default function ContractDetail() {
 
       {run && (
         <>
+          <a href={contractReportUrl(contract.id)} className="mb-4 inline-block text-sm underline">
+            Export redline report (CSV)
+          </a>
           <h2 className="mb-3 text-lg font-medium">Flagged clauses</h2>
           <div className="mb-8 space-y-3">
             {run.flags.map((f) => (
