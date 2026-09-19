@@ -92,3 +92,32 @@ def test_export_csv(client):
 def test_contract_not_found(client):
     resp = client.get("/api/contracts/999/")
     assert resp.status_code == 404
+
+
+def test_analyzing_a_nonexistent_contract_404s(client):
+    resp = client.post("/api/contracts/999/analyze/")
+    assert resp.status_code == 404
+
+
+def test_contract_report_csv_includes_flags(client):
+    _seed_rule(client)
+    contract = client.post(
+        "/api/contracts/",
+        json={"vendor_name": "Acme Co", "raw_text": "This Agreement will automatically renew each year."},
+    ).json()
+    client.post(f"/api/contracts/{contract['id']}/analyze/")
+
+    resp = client.get(f"/api/contracts/{contract['id']}/report/")
+    assert resp.status_code == 200
+    assert resp.headers["content-type"].startswith("text/csv")
+    assert "auto_renewal" in resp.text
+
+
+def test_contract_report_csv_for_unanalyzed_contract_is_header_only(client):
+    contract = client.post(
+        "/api/contracts/", json={"vendor_name": "Acme Co", "raw_text": "Fixed term contract."}
+    ).json()
+
+    resp = client.get(f"/api/contracts/{contract['id']}/report/")
+    assert resp.status_code == 200
+    assert resp.text.strip().count("\n") == 0
