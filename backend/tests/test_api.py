@@ -37,6 +37,20 @@ def _seed_rule(client):
     ).json()
 
 
+def test_duplicate_policy_topic_is_rejected(client):
+    _seed_rule(client)
+    resp = client.post(
+        "/api/policy-rules/",
+        json={
+            "topic": "auto_renewal",
+            "guidance": "Duplicate.",
+            "risk_keywords": "auto-renew",
+            "fallback_language": "N/A",
+        },
+    )
+    assert resp.status_code == 409
+
+
 def test_create_and_list_contracts(client):
     client.post("/api/contracts/", json={"vendor_name": "Acme", "raw_text": "Fixed term contract."})
     resp = client.get("/api/contracts/")
