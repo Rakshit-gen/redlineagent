@@ -1,14 +1,14 @@
 from datetime import datetime
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class PolicyRuleCreate(BaseModel):
-    topic: str
-    guidance: str
+    topic: str = Field(min_length=1)
+    guidance: str = Field(min_length=1)
     severity: str = "medium"
-    risk_keywords: str
-    fallback_language: str
+    risk_keywords: str = Field(min_length=1)
+    fallback_language: str = Field(min_length=1)
 
 
 class PolicyRuleRead(PolicyRuleCreate):
@@ -16,8 +16,8 @@ class PolicyRuleRead(PolicyRuleCreate):
 
 
 class ContractCreate(BaseModel):
-    vendor_name: str
-    raw_text: str
+    vendor_name: str = Field(min_length=1)
+    raw_text: str = Field(min_length=1)
 
 
 class ContractRead(BaseModel):

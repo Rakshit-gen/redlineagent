@@ -58,6 +58,11 @@ def test_create_and_list_contracts(client):
     assert len(resp.json()) == 1
 
 
+def test_contract_with_blank_text_is_rejected(client):
+    resp = client.post("/api/contracts/", json={"vendor_name": "Acme", "raw_text": ""})
+    assert resp.status_code == 422
+
+
 def test_analyze_contract_creates_a_run_with_flags(client):
     _seed_rule(client)
     contract = client.post(
