@@ -81,6 +81,20 @@ def test_every_step_is_recorded(session):
     assert run.steps[-1].tool_name == "finish"
 
 
+def test_analysis_with_no_policy_rules_yields_empty_run(session):
+    contract = Contract(vendor_name="Acme", raw_text="Anything at all.")
+    session.add(contract)
+    session.commit()
+    session.refresh(contract)
+
+    run = run_agent(session, contract, llm=MockLLMClient())
+
+    assert run.status == "completed"
+    assert run.flags == []
+    assert len(run.steps) == 1
+    assert run.steps[0].tool_name == "finish"
+
+
 def test_contract_status_becomes_reviewed(session):
     _make_rule(session)
     contract = Contract(vendor_name="Acme", raw_text="Fixed term, no auto-renewal here.")
