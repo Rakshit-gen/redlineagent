@@ -71,6 +71,9 @@ export const fetchRun = (id: number) => getJson<AgentRun>(`/runs/${id}/`);
 export const createContract = (vendor_name: string, raw_text: string) =>
   postJson<Contract>("/contracts/", { vendor_name, raw_text });
 
+export const createPolicyRule = (rule: Omit<PolicyRule, "id">) =>
+  postJson<PolicyRule>("/policy-rules/", rule);
+
 export const analyzeContract = (contractId: number) =>
   postJson<AgentRun>(`/contracts/${contractId}/analyze/`);
 
