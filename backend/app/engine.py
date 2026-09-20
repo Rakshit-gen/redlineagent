@@ -23,8 +23,16 @@ def run_agent(session: Session, contract: Contract, llm: LLMClient | None = None
     session.commit()
     session.refresh(run)
 
+    # Each topic needs up to 2 steps (search + flag) plus 1 to finish. A fixed
+    # MAX_STEPS cap silently truncated the review once the playbook grew past
+    # ~6 topics, leaving later topics unchecked while the run still reported
+    # "completed". Scale the budget with the playbook so growing it doesn't
+    # quietly skip topics, while keeping MAX_STEPS as a floor against a
+    # runaway real LLM planner.
+    max_steps = max(MAX_STEPS, 2 * len(topics) + 1)
+
     history: list[dict] = []
-    for step_number in range(1, MAX_STEPS + 1):
+    for step_number in range(1, max_steps + 1):
         rule_dicts = {
             t: {"severity": r.severity, "guidance": r.guidance, "fallback_language": r.fallback_language}
             for t, r in policy_rules_by_topic.items()
