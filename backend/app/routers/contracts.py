@@ -1,5 +1,6 @@
 import csv
 import io
+from urllib.parse import quote
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
@@ -54,8 +55,13 @@ def export_contract_report_csv(contract_id: int, session: Session = Depends(get_
             )
     buffer.seek(0)
     filename = f"{contract.vendor_name.replace(' ', '_')}_redline_report.csv"
+    # Non-ASCII vendor names (e.g. "Société Générale") can't go raw into an
+    # HTTP header and crashed this endpoint. Send an ASCII-safe fallback plus
+    # the RFC 5987 encoded form for clients that support it.
+    ascii_filename = filename.encode("ascii", "ignore").decode("ascii") or "contract_redline_report.csv"
+    disposition = f"attachment; filename=\"{ascii_filename}\"; filename*=UTF-8''{quote(filename)}"
     return StreamingResponse(
         buffer,
         media_type="text/csv",
-        headers={"Content-Disposition": f"attachment; filename={filename}"},
+        headers={"Content-Disposition": disposition},
     )
